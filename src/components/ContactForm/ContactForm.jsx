@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 
 export class ContactForm extends Component {
   state = {
@@ -11,12 +12,20 @@ export class ContactForm extends Component {
     this.setState({ [name]: value });
   };
 
-  
+  handleSubmit = event => {
+    event.preventDefault();
+    this.props.onSubmit(this.state);
+    this.reset();
+  };
+
+  reset = () => {
+    this.setState({ name: '', number: '' });
+  };
 
   render() {
     return (
-      <form>
-        <label>Name</label>
+      <form onSubmit={this.handleSubmit}>
+        <label htmlFor="name">Name</label>
         <input
           type="text"
           value={this.state.name}
@@ -26,7 +35,7 @@ export class ContactForm extends Component {
           title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
           required
         />
-        <label>Number</label>
+        <label htmlFor="number">Number</label>
         <input
           type="tel"
           value={this.state.number}
@@ -41,3 +50,8 @@ export class ContactForm extends Component {
     );
   }
 }
+
+
+ ContactForm.propTypes = {
+   addContact: PropTypes.func.isRequired,
+ };
