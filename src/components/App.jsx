@@ -1,8 +1,11 @@
-// import { nanoid } from 'nanoid';
+import { nanoid } from 'nanoid';
 
 import { ContactForm } from './ContactForm/ContactForm';
 import { Component } from 'react';
 import { ContactList } from './ContactList/ContactList';
+import { Filter } from './Filter/Filter';
+
+import css from './App.module.css'; 
 
 export class App extends Component {
   state = {
@@ -15,25 +18,64 @@ export class App extends Component {
     filter: '',
     name: '',
     number: '',
+   
   };
 
-  formSubmitHandler = data => {
-    console.log(data);
+  addContact = ({ name, number }) => {
+    const isContactExists = this.state.contacts.some(
+      contact =>
+        contact.name.toLowerCase() === name.toLowerCase() &&
+        contact.number === number
+    );
+
+    if (isContactExists) {
+      alert(`${name} is already in contacts`);
+      return;
+    }
+
+    const newContact = {
+      id: nanoid(),
+      name,
+      number,
+    };
+
+    this.setState(prevState => ({
+      contacts: [...prevState.contacts, newContact],
+    }));
   };
 
-  removeContact = (contactId) => {
-    this.setState((prevState => ({contacts: prevState.contacts.filter (contact => contact.id !== contactId),})) );
-  }
+  removeContact = contactId => {
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
+    }));
+  };
+
+  changeFilter = event => {
+    this.setState({ filter: event.currentTarget.value.toLowerCase() });
+  };
 
   render() {
-    const { contacts } = this.state;
+    const { contacts, filter } = this.state;
+
+    const normalizedFilter = filter.toLowerCase();
+    const filteredContacts = contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter)
+    );
 
     return (
-      <div>
-        <h1>Phonebook</h1>
-        <ContactForm onSubmit={this.formSubmitHandler} />
-        <h2>Contacts</h2>
-        <ContactList contacts={contacts} onRemoveContact={this.removeContact} />
+      <div className={css.container}>
+        <h1 className={css.sectionTitel}>Phonebook</h1>
+        <ContactForm onSubmit={this.addContact} />
+        <h2 className={css.sectionTitel}>Contacts</h2>
+        <Filter filter={filter} onChange={this.changeFilter} />
+        {filteredContacts.length > 0 ? (
+          <ContactList
+            contacts={filteredContacts}
+            onRemoveContact={this.removeContact}
+          />
+        ) : (
+          <p>Contact with such name was not found</p>
+        )}
       </div>
     );
   }
