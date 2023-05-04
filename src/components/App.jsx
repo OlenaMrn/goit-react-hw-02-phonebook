@@ -5,7 +5,7 @@ import { Component } from 'react';
 import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
 
-import css from './App.module.css'; 
+import css from './App.module.css';
 
 export class App extends Component {
   state = {
@@ -18,7 +18,6 @@ export class App extends Component {
     filter: '',
     name: '',
     number: '',
-   
   };
 
   addContact = ({ name, number }) => {
@@ -49,6 +48,22 @@ export class App extends Component {
       contacts: prevState.contacts.filter(contact => contact.id !== contactId),
     }));
   };
+
+  componentDidMount() {
+    const contactsLocalStorage = localStorage.getItem('contacts');
+
+    if (contactsLocalStorage !== null) {
+      const contactslist = JSON.parse(contactsLocalStorage);
+      this.setState({ contacts: contactslist });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.contacts !== prevState.contacts) {
+      console.log('contacts updated');
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
+  }
 
   changeFilter = event => {
     this.setState({ filter: event.currentTarget.value.toLowerCase() });
